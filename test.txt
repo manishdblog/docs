@@ -1,1 +1,3 @@
 https://ssosaml-h8evehexbxfpagbx.canadacentral-01.azurewebsites.net/
+
+https://dnschecker-bgfne3ekc3azc9he.canadacentral-01.azurewebsites.net/

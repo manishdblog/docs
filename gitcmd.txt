@@ -1,1 +1,67 @@
+git clone https://github.com/deporepos/tragetrepo.git
+cd tragetrepo
+git remote add source https://github.com/deporepos/mysourcerepo.git
+git fetch source
+git checkout pre-prod
+git merge source/pre-prod
+git push origin pre-prod
+
+
+*******************************
+secod time after first merge
+
+
+cd /d/gitmerge
+git clone https://github.com/deporepos/tragetrepo.git
+cd tragetrepo
+git remote add source https://github.com/deporepos/mysourcerepo.git
+git fetch source source-pre-prod
+git checkout pre-prod
+git merge source/source-pre-prod
+git push origin pre-prod
+
+*********************************
+
+
+cd /d/gitmerge
+git clone https://github.com/deporepos/tragetrepo.git
+cd tragetrepo
+git remote add source https://github.com/deporepos/mysourcerepo.git
+git fetch source source-pre-prod
+git checkout pre-prod
+git merge source/source-pre-prod --allow-unrelated-histories
+git push origin pre-prod
+***********************
+
+Fetch the Latest Changes from the Source Repository: Fetch the updated source-pre-prod branch:
+
+
+
+git fetch source source-pre-prod
+
+
+
+********************
+
+cd /d/gitmerge/tragetrepo
+git remote add source https://github.com/deporepos/mysourcerepo.git
+git fetch source
+git checkout pre-prod
+git merge source/pre-prod
+git push origin pre-prod
+******************************
+
+cd /d/gitmerge
+git clone https://github.com/deporepos/tragetrepo.git
+cd tragetrepo
+git remote add source https://github.com/deporepos/mysourcerepo.git
+git fetch source
+git checkout pre-prod
+git merge source/pre-prod
+git push origin pre-prod
+******************************
+
+
+Unrelated Histories: If this is the first time merging the two repositories and they were initialized independently, 
+use the --allow-unrelated-histories flag during the merge:
 

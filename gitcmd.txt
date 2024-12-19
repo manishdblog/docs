@@ -61,6 +61,12 @@ git merge source/pre-prod
 git push origin pre-prod
 ******************************
 
+cd /d/AllCode
+
+find . -name ".git" -type d -exec sh -c 'cd "$(dirname "{}")" && pwd && git remote get-url origin' \;
+find . -name ".git" -type d -exec sh -c 'cd "$(dirname "{}")" && pwd && git remote get-url origin' \; > repo_list.txt
+
+
 
 Unrelated Histories: If this is the first time merging the two repositories and they were initialized independently, 
 use the --allow-unrelated-histories flag during the merge:

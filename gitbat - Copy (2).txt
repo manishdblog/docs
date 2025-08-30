@@ -1,0 +1,21 @@
+@echo off
+REM === Set variables ===
+set GIT_REPO=https://manishdNIT:yuuu@github.com/manishdNIT/mdblog.git
+set CLONE_DIR=D:\bats\code
+
+REM === Path to Git Bash (change if installed elsewhere) ===
+set GIT_BASH="C:\Program Files\Git\bin\bash.exe"
+
+echo.
+echo === Checking repository folder ===
+if exist "%CLONE_DIR%\.git" (
+    echo Repo already cloned. Pulling latest changes...
+    %GIT_BASH% -c "cd '%CLONE_DIR%' && git pull"
+) else (
+    echo Cloning repository...
+    %GIT_BASH% -c "git clone %GIT_REPO% '%CLONE_DIR%'"
+)
+
+echo.
+echo === Done ===
+pause

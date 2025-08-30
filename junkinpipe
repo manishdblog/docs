@@ -1,0 +1,95 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build .NET Project') {
+            steps {
+                script {
+                    bat """
+                    cd /d D:\\junkintest\\Projects\\ftpdeploye\\FTPGitTest
+                    "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe" FTPGitTest.csproj ^
+                      /p:Configuration=Release ^
+                      /p:DeployOnBuild=true ^
+                      /p:PublishProfile=FolderProfile1 ^
+                      /p:PublishDir=D:\\junkintest\\Projects\\ftpdeploye\\cicdftp\\
+                    """
+                }
+            }
+        }
+
+        stage('Zip Build Output') {
+            steps {
+                script {
+                    def sourceFolder = "D:\\junkintest\\Projects\\ftpdeploye\\outBuild"
+                    def zipFile = "D:\\junkintest\\Projects\\ftpdeploye\\outBuild.zip"
+
+                    // Remove old zip if exists and create new one
+                    bat """
+                    if exist "${zipFile}" del /f /q "${zipFile}"
+                    powershell -command "Compress-Archive -Path '${sourceFolder}\\*' -DestinationPath '${zipFile}' -Force"
+                    """
+                }
+            }
+        }
+
+        stage('Copy Zip to Target') {
+            steps {
+                script {
+                    def zipFile = "D:\\junkintest\\Projects\\ftpdeploye\\outBuild.zip"
+                    def targetFolder = "D:\\junkintest\\Projects\\ftpdeploye\\outBuildTarget"
+
+                    bat """
+                    if not exist "${targetFolder}" mkdir "${targetFolder}"
+                    copy /Y "${zipFile}" "${targetFolder}\\"
+                    """
+                }
+            }
+        }
+
+        stage('Unzip at Target') {
+            steps {
+                script {
+                    def targetFolder = "D:\\junkintest\\Projects\\ftpdeploye\\outBuildTarget"
+                    def zipFile = "${targetFolder}\\outBuild.zip"
+
+                    bat """
+                    powershell -command "Expand-Archive -Path '${zipFile}' -DestinationPath '${targetFolder}' -Force"
+                    """
+                }
+            }
+        }
+
+        stage('Delete Zip Files in Target') {
+            steps {
+                script {
+                    def targetFolder = "D:\\junkintest\\Projects\\ftpdeploye\\outBuildTarget"
+
+                    bat """
+                    del /f /q "${targetFolder}\\*.zip"
+                    """
+                }
+            }
+        }
+         stage('Stop IIS') {
+            steps {
+                powershell '''
+                    Write-Host "Stopping IIS..."
+                    Stop-Service -Name 'W3SVC' -Force
+                    Write-Host "IIS Stopped."
+                '''
+            }
+        }
+        stage('Start IIS') {
+            steps {
+                powershell '''
+                    Write-Host "Starting IIS..."
+                    Start-Service -Name 'W3SVC'
+                    Write-Host "IIS Started."
+                '''
+            }
+        }
+        
+
+    }
+}
+

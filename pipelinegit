@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_REPO = "https://github.com/manishdNIT/mdblog.git"
+        BRANCH_NAME = "pre-main"                 // replace with your branch
+        CLONE_DIR = "D:\\bats\\code\\mdblog"     // path on your Jenkins agent
+        GIT_BASH = "C:\\Program Files\\Git\\bin\\bash.exe"
+    }
+
+    stages {
+        stage('Clone or Update Repo') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'SelfGitToken', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                        def GIT_URL = "https://${GIT_USER}:${GIT_TOKEN}@github.com/manishdNIT/mdblog.git"
+
+                        if (fileExists("${CLONE_DIR}\\.git")) {
+                            echo "Repo already cloned. Pulling latest changes..."
+                            bat "\"${GIT_BASH}\" -c \"cd '${CLONE_DIR}' && git fetch origin ${BRANCH_NAME} && git checkout ${BRANCH_NAME} && git pull origin ${BRANCH_NAME}\""
+                        } else {
+                            echo "Cloning branch ${BRANCH_NAME} from private repo..."
+                            bat "\"${GIT_BASH}\" -c \"git clone -b ${BRANCH_NAME} \\\"${GIT_URL}\\\" \\\"${CLONE_DIR}\\\"\""
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Repository is up-to-date!"
+        }
+        failure {
+            echo "Pipeline failed. Check logs."
+        }
+    }
+}

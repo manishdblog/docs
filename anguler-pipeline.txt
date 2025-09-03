@@ -1,1 +1,72 @@
 
+pipeline {
+    agent any
+
+    environment {
+        GIT_REPO = ""
+        BRANCH_NAME = "main"
+        CLONE_DIR = "D:\\bats\\gcode\\ci-cd-runner-angpoc"
+        GIT_BASH = "C:\\Program Files\\Git\\bin\\bash.exe"
+        NODEJS_HOME = "C:\\Program Files\\nodejs"
+        PROJECT_DIR = "${CLONE_DIR}\\my-angular-app"
+    }
+
+    stages {
+        stage('Prepare Folder') {
+            steps {
+                script {
+                    if (!fileExists("${CLONE_DIR}")) {
+                        echo "Folder does not exist. Creating: ${CLONE_DIR}"
+                        bat "mkdir \"${CLONE_DIR}\""
+                    } else {
+                        echo "Folder already exists: ${CLONE_DIR}"
+                    }
+                }
+            }
+        }
+
+        stage('Clone or Update Repo') {
+            steps {
+                script {
+                    if (fileExists("${CLONE_DIR}\\.git")) {
+                        echo "Repo already cloned. Pulling latest changes..."
+                        bat "\"${GIT_BASH}\" -c \"cd \\\"${CLONE_DIR}\\\" && git fetch origin ${BRANCH_NAME} && git checkout ${BRANCH_NAME} && git pull origin ${BRANCH_NAME}\""
+                    } else {
+                        echo "Cloning branch ${BRANCH_NAME} from private repo..."
+                        bat "\"${GIT_BASH}\" -c \"git clone -b ${BRANCH_NAME} \\\"${GIT_REPO}\\\" \\\"${CLONE_DIR}\\\"\""
+                    }
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+               echo "PROJECT_DIR  ${PROJECT_DIR}"
+               bat """
+                set PATH=${NODEJS_HOME};%PATH%
+                cd /d "${PROJECT_DIR}"
+                npm install -f
+                """
+            }
+        }
+
+        stage('Build Angular App') {
+            steps {
+                bat """
+                set PATH=${NODEJS_HOME};%PATH%
+                cd /d "${PROJECT_DIR}"
+                npm run build -- --configuration=production
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Angular application build completed successfully!"
+        }
+        failure {
+            echo "Pipeline failed. Check logs."
+        }
+    }
+}
